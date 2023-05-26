@@ -40,7 +40,7 @@ def gen_frames():
                 pass
 
         else:
-            pass
+            cap.release()
     #cap.release()
     #cv2.destroyAllWindows()
 
