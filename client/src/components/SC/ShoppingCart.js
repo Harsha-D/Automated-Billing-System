@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Table, Button, Form, Row, Col } from "react-bootstrap";
-import { useSelector } from "react-redux";
 import moment from "moment";
 import axios from "axios";
-
 
 const ShoppingCart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -11,33 +9,28 @@ const ShoppingCart = () => {
   const [quantity, setQuantity] = useState(1);
   const [billVisible, setBillVisible] = useState(false);
   const [billDateTime, setBillDateTime] = useState("");
-  const userDetails = useSelector((state) => state.userDetails);
-
+  const [discountCoupon, setDiscountCoupon] = useState("");
   const products = [
-    { id: "hdsbi78dfY", name: "CloseUp", price: 10 },
+    { id: "hdsbi78dfY", name: "CloseUp", price: 10, defaultDiscount: 10 },
     { id: "kahv238923", name: "Cocoa Powder", price: 20 },
-    { id: "etyd7890we", name: "Colgate", price: 15 },
+    { id: "etyd7890we", name: "Colgate", price: 15, defaultDiscount: 10 },
     { id: "kjbw23jhvh", name: "Hershey-s", price: 10 },
     { id: "JHVgcYVj67", name: "KeraGlo", price: 10 },
     { id: "Ftuc88cUTI", name: "Lays", price: 10 },
     { id: "hvIViV89yv", name: "Loreal", price: 10 },
-    { id: "jhdvsDjh3f", name: "Maggi", price: 10 },
+    { id: "jhdvsDjh3f", name: "Maggi", price: 10, defaultDiscount: 10 },
     { id: "iyv9779v97", name: "MarieLight", price: 10 },
     { id: "iyvI9v9V76", name: "Perk", price: 10 },
   ];
-
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const name = localStorage.getItem("username");
   useEffect(() => {
-    console.log(userDetails);
     let demoProducts = [];
-    // if (userDetails.cart !== undefined) {
-    // }
     const localCart = localStorage.getItem("cartItems");
-    console.log(localCart);
     if (localCart !== null) {
       const temp = localCart.split("_");
       const set1 = new Set(temp);
       const arr = Array.from(set1);
-      console.log(arr);
       for (let id of arr) {
         const filteredProducts = products.filter(
           (product) => product.id === id
@@ -46,21 +39,40 @@ const ShoppingCart = () => {
           demoProducts.push({ ...filteredProducts[0], quantity: 1 });
         }
       }
-      setCartItems(demoProducts);
+
+      const updatedProducts = demoProducts.map((product) => {
+        const discount = product.defaultDiscount || 0;
+        const discountedPrice =
+          product.price - (product.price * discount) / 100;
+        return { ...product, price: discountedPrice };
+      });
+
+      setCartItems(updatedProducts);
     }
+    // eslint-disable-next-line
   }, []);
+
 
   const addToCart = () => {
     const product = products.find((item) => item.name === selectedProduct);
-    const newItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity,
-    };
-    setCartItems([...cartItems, newItem]);
-    setSelectedProduct("");
-    setQuantity(1);
+    if (product) {
+      const discount = product.defaultDiscount || 0;
+      const discountedPrice = product.price - (product.price * discount) / 100;
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        price: discountedPrice,
+        quantity,
+      };
+      setCartItems([...cartItems, newItem]);
+      setSelectedProduct("");
+      setQuantity(1);
+      console.log(
+        `Added ${product.name} to the cart with price: $${discountedPrice}`
+      );
+    } else {
+      console.log("Product not found");
+    }
   };
 
   const removeItem = (id) => {
@@ -74,20 +86,21 @@ const ShoppingCart = () => {
     );
     setCartItems(updatedItems);
   };
+
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem("cartItems");
   };
 
-   const payBill = () => {
-     // Perform the payment logic here...
-     alert("Payment successful!");
-   };
+  const payBill = () => {
+    // Perform the payment logic here...
+    alert("Payment successful!");
+  };
 
-   const printBill = () => {
-     const billContents = document.getElementById("billContents");
-     const printWindow = window.open("", "_blank");
-     printWindow.document.write(`
+  const printBill = () => {
+    const billContents = document.getElementById("billContents");
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
       <html>
         <head>
           <title>Bill</title>
@@ -97,8 +110,9 @@ const ShoppingCart = () => {
         </head>
         <body>
           <h2>Bill</h2>
-          <p>Username: ${userDetails.username}</p>
+          <p>Username: ${name}</p>
           <p>Date and Time: ${billDateTime}</p>
+          <p>Invoice Number: ${invoiceNumber}</p>
           ${billContents.outerHTML}
           <script type="text/javascript">
             window.onload = function() {
@@ -111,15 +125,53 @@ const ShoppingCart = () => {
         </body>
       </html>
     `);
-     printWindow.document.close();
-   };
+    printWindow.document.close();
+  };
+
+  const generateRandomInvoiceNumber = () => {
+    const uniqueId = "C1#"; // Unique identifier
+    const randomNumber = Math.floor(Math.random() * 1000000); // Random number between 0 and 999999
+
+    return uniqueId + randomNumber;
+  };
+
+  const calculateTotalPrice = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
+
+  const applyDiscount = () => {
+    const discountCode = "10Percent";
+
+    // Check if the entered discount coupon matches the expected code
+    if (discountCoupon === discountCode) {
+      // Example: Applying a 10% discount
+      const discountPercentage = 10;
+      const discountFactor = (100 - discountPercentage) / 100;
+
+      const updatedCartItems = cartItems.map((item) => {
+        const discountedPrice = item.price * discountFactor;
+        return {
+          ...item,
+          price: discountedPrice.toFixed(2),
+        };
+      });
+
+      setCartItems(updatedCartItems);
+    } else {
+      alert("Invalid discount coupon");
+    }
+  };
+
   const generateBill = async () => {
     const currentDateTime = moment().format("YYYY-MM-DD HH:mm:ss");
     setBillVisible(true);
     setBillDateTime(currentDateTime);
-
+    setInvoiceNumber(generateRandomInvoiceNumber());
     const order = {
-      username: userDetails.username,
+      username: name,
       dateTime: currentDateTime,
       items: cartItems.map((item) => ({
         name: item.name,
@@ -135,13 +187,6 @@ const ShoppingCart = () => {
     } catch (error) {
       console.error("Failed to save order:", error);
     }
-  };
-
-  const calculateTotalPrice = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
   };
 
   const scanHandler = () => {
@@ -192,6 +237,21 @@ const ShoppingCart = () => {
           <br />
           <Button variant="primary" onClick={scanHandler}>
             Scan a product
+          </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Form.Group controlId="discountCoupon">
+            <Form.Label>Discount Coupon:</Form.Label>
+            <Form.Control
+              type="text"
+              value={discountCoupon}
+              onChange={(e) => setDiscountCoupon(e.target.value)}
+            />
+          </Form.Group>
+          <Button variant="primary" onClick={applyDiscount}>
+            Apply Discount
           </Button>
         </Col>
       </Row>
@@ -257,8 +317,9 @@ const ShoppingCart = () => {
       {billVisible && (
         <div className="bill">
           <h2>Bill</h2>
-          <p>Username: {userDetails.username}</p> {/* Display the username */}
-          <p>Date and Time: {billDateTime}</p> {/* Display the date-time */}
+          <div>Username: {name}</div>
+          <div>Date and Time: {billDateTime}</div>
+          <div>Invoice Number: {invoiceNumber}</div>
           <div id="billContents" className="bill-contents">
             <Table striped bordered>
               <thead>

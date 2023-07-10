@@ -36,8 +36,6 @@
   font-size: 18px;
   line-height: 1.5;
   background-color: white;
-  margin: 0;
-  padding: 0;
 }
 @keyframes App-logo-spin {
   from {
@@ -48,7 +46,7 @@
   }
 }
 .homebody{
-  max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }

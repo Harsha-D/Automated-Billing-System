@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 const NavBar = () => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userLoggedIn = useSelector((state) => state.userLoggedIn);
 
-	const userLoggedIn = useSelector((state) => state.userLoggedIn);
-
-	return (
+  return (
     <Navbar bg="light" expand="lg">
       <Container>
         <Navbar.Brand
@@ -16,7 +17,7 @@ const NavBar = () => {
             navigate("/");
           }}
         >
-          Automated-Billing System
+        Invoice Generation Using YOLOv8
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -28,7 +29,7 @@ const NavBar = () => {
             >
               Home
             </Nav.Link>
-            <Nav.Link href="https://github.com/alladikarthik02/automated-billing-system">
+            <Nav.Link href="https://github.com/alladikarthik02/Invoice-Generation-UsingObjectDetection">
               Git Repo
             </Nav.Link>
             <NavDropdown title="Available Products" id="basic-nav-dropdown">
@@ -57,13 +58,23 @@ const NavBar = () => {
               </Nav.Link>
             )}
             {userLoggedIn ? (
-              <Nav.Link
-                onClick={() => {
-                  navigate("/cart");
-                }}
-              >
-                <AiOutlineShoppingCart /> Cart
-              </Nav.Link>
+              <>
+                <Nav.Link
+                  onClick={() => {
+                    dispatch({ type: "logout" });
+                    navigate("/");
+                  }}
+                >
+                  Logout
+                </Nav.Link>
+                <Nav.Link
+                  onClick={() => {
+                    navigate("/cart");
+                  }}
+                >
+                  <AiOutlineShoppingCart /> Cart
+                </Nav.Link>
+              </>
             ) : (
               <Nav.Link
                 onClick={() => {
