@@ -1,12 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import "./App.css";
-import ShoppingCart from "./Components/SC/ShoppingCart";
-import NavBar from "./Components/NavBar/NavBar";
-import Home from "./Components/Home/Home";
+import ShoppingCart from "./components/SC/ShoppingCart";
+import NavBar from "./components/NavBar/NavBar";
+import Home from "./components/Home/Home";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Demo from "./Components/Demo/Demo";
-import LoginForm from "./Components/Signup/LoginForm";
+import Demo from "./components/Demo/Demo";
+import LoginForm from "./components/Signup/LoginForm";
 import { useDispatch } from "react-redux";
 import PreviousOrders from "./PreviousOrders/PreviousOrders";
 
