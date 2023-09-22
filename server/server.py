@@ -12,7 +12,7 @@ items = {0: 'CloseUp', 1: 'Cocoa Powder', 2: 'Colgate', 3: 'Hershey-s', 4: 'Kera
 
 id_dict = {'CloseUp': 'hdsbi78dfY', 'Cocoa Powder': 'kahv238923', 'Maggi': 'jhdvsDjh3f', 'Hershey-s': 'kjbw23jhvh', 'KeraGlo': 'JHVgcYVj67', 'Lays': 'Ftuc88cUTI', 'Loreal': 'hvIViV89yv', 'MarieLight': 'iyv9779v97', 'Perk': 'iyvI9v9V76','Colgate':'etyd7890we', 'None': 'None'}
 
-model = YOLO("C:/Users/Harsha/Retail-Billing-System/ml-model/runs/detect/train/weights/best.pt")
+model = YOLO("../../ml-model/runs/detect/train/weights/best.pt")
 
 
 def gen_frames():
